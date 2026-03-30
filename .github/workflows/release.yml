@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '25'
-          distribution: 'oracle'
+          distribution: 'temurin'
 
       - name: Get current date
         id: date
