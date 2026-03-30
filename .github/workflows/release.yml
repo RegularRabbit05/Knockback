@@ -33,6 +33,6 @@ jobs:
         with:
           tag_name: "v${{ github.run_number }}-${{ steps.date.outputs.date }}"
           name: "${{ github.run_id }} - ${{ steps.date.outputs.date }}"
-          files: build/libs/your-jar-file.jar
+          files: build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
