@@ -198,17 +198,13 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   @Override
   public ProxyVersion getVersion() {
     Package pkg = VelocityServer.class.getPackage();
-    String implName;
+    String implName = "Knockback";
     String implVersion;
-    String implVendor;
+    String implVendor = "RegularRabbit05";
     if (pkg != null) {
-      implName = MoreObjects.firstNonNull(pkg.getImplementationTitle(), "Velocity");
       implVersion = MoreObjects.firstNonNull(pkg.getImplementationVersion(), "<unknown>");
-      implVendor = MoreObjects.firstNonNull(pkg.getImplementationVendor(), "Velocity Contributors");
     } else {
-      implName = "Velocity";
       implVersion = "<unknown>";
-      implVendor = "Velocity Contributors";
     }
 
     return new ProxyVersion(implName, implVendor, implVersion);
@@ -217,8 +213,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   private VelocityPluginContainer createVirtualPlugin() {
     ProxyVersion version = getVersion();
     PluginDescription description = new VelocityPluginDescription(
-        "velocity", version.getName(), version.getVersion(), "The Velocity proxy",
-            version.getName().equals("Velocity") ? VELOCITY_URL : null,
+        "velocity", version.getName(), version.getVersion(), "The Knockback proxy",
+            version.getName().equals("Knockback") ? VELOCITY_URL : null,
             ImmutableList.of(version.getVendor()), Collections.emptyList(), null);
     VelocityPluginContainer container = new VelocityPluginContainer(description);
     container.setInstance(VelocityVirtualPlugin.INSTANCE);
