@@ -80,7 +80,7 @@ public abstract class ChatBuilderV2 {
   }
 
   public ChatBuilderV2 setLastSeenMessages(LastSeenMessages lastSeenMessages) {
-    this.lastSeenMessages = lastSeenMessages;
+    this.lastSeenMessages = null;
     return this;
   }
 
