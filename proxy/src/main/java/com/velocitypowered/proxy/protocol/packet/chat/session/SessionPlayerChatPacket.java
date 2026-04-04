@@ -50,7 +50,7 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
   }
 
   public boolean isSigned() {
-    return false;
+    return signed;
   }
 
   public byte[] getSignature() {
@@ -66,9 +66,11 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
       ProtocolVersion protocolVersion) {
     this.message = ProtocolUtils.readString(buf, 256);
     this.timestamp = Instant.ofEpochMilli(buf.readLong());
-    this.salt = buf.readLong();
+    buf.readLong();
+    this.salt = 0L;
     this.signed = buf.readBoolean();
-    this.signature = new byte[0];
+    if (this.signed) readMessageSignature(buf);
+    this.signature = new byte[256];
     this.lastSeenMessages = new LastSeenMessages(buf, protocolVersion);
   }
 
@@ -77,8 +79,9 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
       ProtocolVersion protocolVersion) {
     ProtocolUtils.writeString(buf, this.message);
     buf.writeLong(this.timestamp.toEpochMilli());
-    buf.writeLong(this.salt);
+    buf.writeLong(0L);
     buf.writeBoolean(this.signed);
+    if (this.signed) buf.writeBytes(new byte[256]);
     this.lastSeenMessages.encode(buf, protocolVersion);
   }
 
@@ -90,16 +93,16 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
   protected static byte[] readMessageSignature(ByteBuf buf) {
     byte[] signature = new byte[256];
     buf.readBytes(signature);
-    return new byte[0];
+    return new byte[256];
   }
 
   public SessionPlayerChatPacket withLastSeenMessages(LastSeenMessages lastSeenMessages) {
     SessionPlayerChatPacket packet = new SessionPlayerChatPacket();
     packet.message = message;
     packet.timestamp = timestamp;
-    packet.salt = salt;
+    packet.salt = 0L;
     packet.signed = signed;
-    packet.signature = signature;
+    packet.signature = new byte[256];
     packet.lastSeenMessages = lastSeenMessages;
     return packet;
   }
