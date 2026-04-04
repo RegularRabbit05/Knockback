@@ -441,7 +441,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
 
     connection.write(getChatBuilderFactory().builder()
         .component(translated).forIdentity(identity)
-        .setType(type == MessageType.CHAT ? ChatType.SYSTEM : ChatType.SYSTEM)
+        .setType(type == MessageType.CHAT ? ChatType.CHAT : ChatType.SYSTEM)
         .toClient());
   }
 
