@@ -19,16 +19,16 @@ package com.velocitypowered.proxy.protocol.packet.chat.keyed;
 
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
-import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
-import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.concurrent.CompletableFuture;
 
 public class KeyedChatHandler implements
     com.velocitypowered.proxy.protocol.packet.chat.ChatHandler<KeyedPlayerChatPacket> {
@@ -71,27 +71,17 @@ public class KeyedChatHandler implements
     PlayerChatEvent toSend = new PlayerChatEvent(player, packet.getMessage());
     CompletableFuture<PlayerChatEvent> future = eventManager.fire(toSend);
 
-    CompletableFuture<MinecraftPacket> chatFuture;
-    IdentifiedKey playerKey = this.player.getIdentifiedKey();
-
-    if (playerKey != null && !packet.isUnsigned()) {
-      // 1.19->1.19.2 signed version
-      chatFuture = future.thenApply(handleOldSignedChat(packet));
-    } else {
-      // 1.19->1.19.2 unsigned version
-      chatFuture = future.thenApply(pme -> {
-        PlayerChatEvent.ChatResult chatResult = pme.getResult();
-        if (!chatResult.isAllowed()) {
-          return null;
-        }
-
-        return player.getChatBuilderFactory().builder()
-            .message(chatResult.getMessage().orElse(packet.getMessage()))
-            .setTimestamp(packet.getExpiry()).toServer();
-      });
-    }
     chatQueue.queuePacket(
-        newLastSeen -> chatFuture.exceptionally((ex) -> {
+        newLastSeen -> future.thenApply(pme -> {
+          PlayerChatEvent.ChatResult chatResult = pme.getResult();
+          if (!chatResult.isAllowed()) {
+            return null;
+          }
+
+          String message = chatResult.getMessage().orElse(packet.getMessage());
+          broadcastChat(message);
+          return null;
+        }).exceptionally((ex) -> {
           logger.error("Exception while handling player chat for {}", player, ex);
           return null;
         }),
@@ -100,32 +90,16 @@ public class KeyedChatHandler implements
     );
   }
 
-  private Function<PlayerChatEvent, MinecraftPacket> handleOldSignedChat(KeyedPlayerChatPacket packet) {
-    IdentifiedKey playerKey = this.player.getIdentifiedKey();
-    assert playerKey != null;
-    return pme -> {
-      PlayerChatEvent.ChatResult chatResult = pme.getResult();
-      if (!chatResult.isAllowed()) {
-        if (playerKey.getKeyRevision().noLessThan(IdentifiedKey.Revision.LINKED_V2)) {
-          // Bad, very bad.
-          invalidCancel(logger, player);
-        }
-        return null;
-      }
+  private void broadcastChat(String message) {
+    Component chatMessage = Component.translatable("chat.type.text",
+        Component.text(player.getUsername()),
+        Component.text(message));
+    Identity identity = player.identity();
 
-      if (chatResult.getMessage().map(str -> !str.equals(packet.getMessage())).orElse(false)) {
-        if (playerKey.getKeyRevision().noLessThan(IdentifiedKey.Revision.LINKED_V2)) {
-          // Bad, very bad.
-          invalidChange(logger, player);
-        } else {
-          logger.warn("A plugin changed a signed chat message. The server may not accept it.");
-          return player.getChatBuilderFactory().builder()
-              .message(chatResult.getMessage().get() /* always present at this point */)
-              .setTimestamp(packet.getExpiry())
-              .toServer();
-        }
+    player.getCurrentServer().ifPresent(serverConnection -> {
+      for (Player p : serverConnection.getServer().getPlayersConnected()) {
+        p.sendMessage(identity, chatMessage);
       }
-      return packet;
-    };
+    });
   }
 }

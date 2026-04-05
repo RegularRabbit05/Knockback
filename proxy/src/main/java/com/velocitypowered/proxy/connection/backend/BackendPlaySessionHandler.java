@@ -67,7 +67,10 @@ import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.TransferPacket;
 import com.velocitypowered.proxy.protocol.packet.UpsertPlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
+import com.velocitypowered.proxy.protocol.packet.chat.SystemChatPacket;
 import com.velocitypowered.proxy.protocol.packet.config.StartUpdatePacket;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import com.velocitypowered.proxy.protocol.util.PluginMessageUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -339,6 +342,16 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
   @Override
   public boolean handle(LegacyPlayerListItemPacket packet) {
     serverConn.getPlayer().getTabList().processLegacy(packet);
+    return false;
+  }
+
+  @Override
+  public boolean handle(SystemChatPacket packet) {
+    Component component = packet.getComponent().getComponent();
+    if (component instanceof TranslatableComponent translatable
+        && translatable.key().equals("chat.disabled.missingProfileKey")) {
+      return true;
+    }
     return false;
   }
 
