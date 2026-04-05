@@ -73,6 +73,15 @@ public class KeyedPlayerChatPacket implements MinecraftPacket {
     return signedPreview;
   }
 
+  public void stripSignatures() {
+    this.unsigned = true;
+    this.signature = null;
+    this.salt = null;
+    this.signedPreview = false;
+    this.previousMessages = new SignaturePair[0];
+    this.lastMessage = null;
+  }
+
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
       ProtocolVersion protocolVersion) {

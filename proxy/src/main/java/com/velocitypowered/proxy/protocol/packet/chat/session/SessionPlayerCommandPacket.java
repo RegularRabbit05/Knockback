@@ -70,6 +70,11 @@ public class SessionPlayerCommandPacket implements MinecraftPacket {
     return !argumentSignatures.isEmpty();
   }
 
+  public void stripSignatures() {
+    this.argumentSignatures = new ArgumentSignatures();
+    this.salt = 0L;
+  }
+
   public CommandExecuteEvent.SignedState getEventSignedState() {
     return !this.argumentSignatures.isEmpty() ? CommandExecuteEvent.SignedState.SIGNED_WITH_ARGS : CommandExecuteEvent.SignedState.SIGNED_WITHOUT_ARGS;
   }

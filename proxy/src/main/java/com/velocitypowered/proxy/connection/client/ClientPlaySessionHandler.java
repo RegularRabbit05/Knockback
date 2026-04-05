@@ -212,6 +212,7 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       return true;
     }
 
+    packet.stripSignatures();
     return this.commandHandler.handlePlayerCommand(packet);
   }
 
@@ -229,6 +230,7 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       return true;
     }
 
+    packet.stripSignatures();
     return this.chatHandler.handlePlayerChat(packet);
   }
 
@@ -246,6 +248,7 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       return true;
     }
 
+    packet.stripSignatures();
     return this.commandHandler.handlePlayerCommand(packet);
   }
 
@@ -263,6 +266,7 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       return true;
     }
 
+    packet.stripSignatures();
     return this.chatHandler.handlePlayerChat(packet);
   }
 

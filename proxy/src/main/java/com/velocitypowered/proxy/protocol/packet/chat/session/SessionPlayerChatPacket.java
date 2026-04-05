@@ -100,6 +100,12 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
     return signature;
   }
 
+  public void stripSignatures() {
+    this.signed = false;
+    this.signature = new byte[0];
+    this.salt = 0L;
+  }
+
   public SessionPlayerChatPacket withLastSeenMessages(LastSeenMessages lastSeenMessages) {
     SessionPlayerChatPacket packet = new SessionPlayerChatPacket();
     packet.message = message;

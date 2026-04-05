@@ -66,6 +66,19 @@ public class KeyedPlayerCommandPacket implements MinecraftPacket {
   public KeyedPlayerCommandPacket() {
   }
 
+  public void stripSignatures() {
+    this.unsigned = true;
+    this.salt = 0L;
+    this.signedPreview = false;
+    this.previousMessages = new SignaturePair[0];
+    this.lastMessage = null;
+    ImmutableMap.Builder<String, byte[]> builder = ImmutableMap.builder();
+    for (String key : this.arguments.keySet()) {
+      builder.put(key, EncryptionUtils.EMPTY);
+    }
+    this.arguments = builder.build();
+  }
+
   /**
    * Creates an {@link KeyedPlayerCommandPacket} packet based on a command and list of arguments.
    *
