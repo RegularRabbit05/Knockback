@@ -61,6 +61,12 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
     return lastSeenMessages;
   }
 
+  public void stripSignatures() {
+    this.signed = false;
+    this.signature = new byte[0];
+    this.salt = 0L;
+  }
+
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
       ProtocolVersion protocolVersion) {

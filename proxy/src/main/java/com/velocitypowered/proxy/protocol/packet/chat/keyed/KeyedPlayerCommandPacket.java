@@ -25,6 +25,7 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.crypto.EncryptionUtils;
 import com.velocitypowered.proxy.crypto.SignaturePair;
+import com.velocitypowered.proxy.crypto.EncryptionUtils;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
@@ -57,6 +58,17 @@ public class KeyedPlayerCommandPacket implements MinecraftPacket {
 
   public boolean isUnsigned() {
     return unsigned;
+  }
+
+  public void stripSignatures() {
+    this.unsigned = true;
+    this.salt = 0L;
+    this.signedPreview = false;
+    ImmutableMap.Builder<String, byte[]> builder = ImmutableMap.builder();
+    arguments.forEach((key, value) -> builder.put(key, EncryptionUtils.EMPTY));
+    this.arguments = builder.build();
+    this.previousMessages = new SignaturePair[0];
+    this.lastMessage = null;
   }
 
   public String getCommand() {

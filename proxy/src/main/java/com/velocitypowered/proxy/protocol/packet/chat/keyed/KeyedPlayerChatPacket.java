@@ -22,6 +22,7 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.crypto.EncryptionUtils;
 import com.velocitypowered.proxy.crypto.SignaturePair;
+import com.velocitypowered.proxy.crypto.EncryptionUtils;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
@@ -63,6 +64,15 @@ public class KeyedPlayerChatPacket implements MinecraftPacket {
 
   public boolean isUnsigned() {
     return unsigned;
+  }
+
+  public void stripSignatures() {
+    this.unsigned = true;
+    this.salt = new byte[0];
+    this.signature = EncryptionUtils.EMPTY;
+    this.signedPreview = false;
+    this.previousMessages = new SignaturePair[0];
+    this.lastMessage = null;
   }
 
   public String getMessage() {
