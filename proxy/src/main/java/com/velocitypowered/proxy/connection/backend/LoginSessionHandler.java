@@ -97,7 +97,7 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
           serverConn.getPlayerRemoteAddressAsString(),
           player.getProtocolVersion(),
           player.getGameProfile(),
-          player.getIdentifiedKey(),
+          null,
           requestedForwardingVersion);
 
       LoginPluginResponsePacket response = new LoginPluginResponsePacket(

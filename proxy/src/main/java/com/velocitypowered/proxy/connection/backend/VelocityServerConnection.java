@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.network.HandshakeIntent;
+import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
@@ -193,12 +194,11 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
 
     mc.setProtocolVersion(protocolVersion);
     mc.setActiveSessionHandler(StateRegistry.LOGIN);
-    if (proxyPlayer.getIdentifiedKey() == null
-        && proxyPlayer.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
+    if (proxyPlayer.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
       mc.delayedWrite(new ServerLoginPacket(proxyPlayer.getUsername(), proxyPlayer.getUniqueId()));
     } else {
-      mc.delayedWrite(new ServerLoginPacket(proxyPlayer.getUsername(),
-              proxyPlayer.getIdentifiedKey()));
+      // Strip player key to prevent backend from expecting signed messages
+      mc.delayedWrite(new ServerLoginPacket(proxyPlayer.getUsername(), (IdentifiedKey) null));
     }
     mc.flush();
   }
