@@ -75,12 +75,12 @@ public class KeyedChatHandler implements
         newLastSeen -> future.thenApply(pme -> {
           PlayerChatEvent.ChatResult chatResult = pme.getResult();
           if (!chatResult.isAllowed()) {
-            return null;
+            return (com.velocitypowered.proxy.protocol.MinecraftPacket) null;
           }
 
           String message = chatResult.getMessage().orElse(packet.getMessage());
           broadcastChat(message);
-          return null;
+          return (com.velocitypowered.proxy.protocol.MinecraftPacket) null;
         }).exceptionally((ex) -> {
           logger.error("Exception while handling player chat for {}", player, ex);
           return null;
