@@ -112,6 +112,15 @@ tasks {
         workingDir = file("run").also(File::mkdirs)
         standardInput = System.`in` // Doesn't work?
     }
+
+    withType<JavaCompile>().configureEach {
+        options.compilerArgs.addAll(
+            listOf(
+                "-Alog4j.graalvm.groupId=${project.group}",
+                "-Alog4j.graalvm.artifactId=${project.name}"
+            )
+        )
+    }
 }
 
 val projectVersion = version as String
@@ -120,8 +129,12 @@ fill {
 
     build {
         channel = BuildChannel.STABLE
-        versionFamily("3.0.0")
+        versionFamily("4.0.0")
         version(projectVersion)
+
+        if (versionFamily.get().split(".")[0] != projectVersion.split(".")[0]) {
+            throw IllegalArgumentException("Version family does not match project version")
+        }
 
         downloads {
             register("server:default") {
@@ -159,7 +172,6 @@ dependencies {
     implementation(libs.fastutil)
     implementation(platform(libs.adventure.bom))
     implementation(libs.adventure.text.serializer.json.legacy.impl)
-    implementation(libs.adventure.facet)
     implementation(libs.completablefutures)
     implementation(libs.nightconfig)
     implementation(libs.bstats)

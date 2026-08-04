@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Velocity Contributors
+ * Copyright (C) 2025 Velocity Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,42 +15,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.velocitypowered.proxy.protocol.packet.title;
+package com.velocitypowered.proxy.protocol.packet;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
+import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
-import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
 
-public class TitleActionbarPacket extends GenericTitlePacket {
+public class ServerboundPlayerLoadedPacket implements MinecraftPacket {
 
-  private ComponentHolder component;
+  public static final ServerboundPlayerLoadedPacket INSTANCE = new ServerboundPlayerLoadedPacket();
 
-  public TitleActionbarPacket() {
-    setAction(ActionType.SET_ACTION_BAR);
+  private ServerboundPlayerLoadedPacket() {
+  }
+
+  @Override
+  public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    component.write(buf);
   }
 
   @Override
-  public ComponentHolder getComponent() {
-    return component;
-  }
-
-  @Override
-  public void setComponent(ComponentHolder component) {
-    this.component = component;
-  }
-
-  @Override
-  public String toString() {
-    return "TitleActionbarPacket{"
-        + ", component='" + component + '\''
-        + '}';
+  public int decodeExpectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
+    return 0;
   }
 
   @Override
